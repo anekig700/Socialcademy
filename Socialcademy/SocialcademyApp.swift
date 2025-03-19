@@ -17,7 +17,7 @@ struct SocialcademyApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            PostsList()
         }
     }
 }
