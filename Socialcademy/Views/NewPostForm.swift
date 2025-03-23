@@ -9,7 +9,9 @@ import SwiftUI
 
 struct NewPostForm: View {
     
-    typealias CreateAction = (Post) -> Void
+    @State private var state = FormState.idle
+    
+    typealias CreateAction = (Post) async throws -> Void
     
     let createAction: CreateAction
     
@@ -29,7 +31,11 @@ struct NewPostForm: View {
                         .multilineTextAlignment(.leading)
                 }
                 Button(action: createPost) {
-                    Text("Create Post")
+                    if state == .working {
+                        ProgressView()
+                    } else {
+                        Text("Create Post")
+                    }
                 }
                 .font(.headline)
                 .frame(maxWidth: .infinity)
@@ -40,11 +46,39 @@ struct NewPostForm: View {
             .onSubmit(createPost)
             .navigationBarTitle("New Post")
         }
+        .disabled(state == .working)
+        .alert("Cannot Create Post", isPresented: $state.isError, actions: {}) { 
+            Text("Sorry, something went wrong.")
+        }
     }
     
     private func createPost() {
-        createAction(post)
-        dismiss()
+        Task {
+            state = .working
+            do {
+                try await createAction(post)
+                dismiss()
+            } catch {
+                print("[NewPostForm] Cannot create post: \(error)")
+                state = .error
+            }
+        }
+    }
+}
+
+private extension NewPostForm {
+    enum FormState {
+        case idle, working, error
+        
+        var isError: Bool {
+            get {
+                self == .error
+            }
+            set {
+                guard !newValue else { return }
+                self = .idle
+            }
+        }
     }
 }
 
