@@ -16,9 +16,29 @@ struct PostsList: View {
     
     var body: some View {
         NavigationStack {
-            List(viewModel.posts) { post in
-                if searchText.isEmpty || post.contains(searchText) {
-                    PostRow(post: post)
+            Group {
+                switch viewModel.posts {
+                case .loading:
+                    ProgressView()
+                case let .error(error):
+                    EmptyListView(
+                        title: "Cannot Load Posts",
+                        message: error.localizedDescription,
+                        retryAction: {
+                            viewModel.fetchPosts()
+                        }
+                    )
+                case .empty:
+                    EmptyListView(
+                        title: "No Posts",
+                        message: "There aren’t any posts yet."
+                    )
+                case let .loaded(posts):
+                    List(posts) { post in
+                        if searchText.isEmpty || post.contains(searchText) {
+                            PostRow(post: post)
+                        }
+                    }
                 }
             }
             .searchable(text: $searchText)
@@ -30,6 +50,9 @@ struct PostsList: View {
                     Label("New Post", systemImage: "square.and.pencil")
                 }
             }
+        }
+        .onAppear {
+            viewModel.fetchPosts()
         }
         .sheet(isPresented: $showNewPostForm) {
             NewPostForm(createAction: viewModel.makeCreateAction())
