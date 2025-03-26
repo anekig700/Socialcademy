@@ -60,6 +60,33 @@ struct PostsList: View {
     }
 }
 
-#Preview {
-    PostsList()
+#if DEBUG
+
+@MainActor
+private struct ListPreview: View {
+    let state: Loadable<[Post]>
+    
+    var body: some View {
+        let postsRepository = PostsRepositoryStub(state: state)
+        let viewModel = PostsViewModel(postsRepository: postsRepository)
+        PostsList(viewModel: viewModel)
+    }
+    
 }
+
+#Preview {
+    ListPreview(state: .loaded([Post.testPost]))
+}
+
+#Preview {
+    ListPreview(state: .error)
+}
+
+#Preview {
+    ListPreview(state: .loading)
+}
+
+#Preview {
+    ListPreview(state: .empty)
+}
+#endif

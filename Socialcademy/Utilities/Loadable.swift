@@ -13,6 +13,30 @@ enum Loadable<Value> {
     case loaded(Value)
 }
 
+#if DEBUG
+extension Loadable {
+    
+    static var error: Loadable<Value> { .error(PreviewError()) }
+    
+    private struct PreviewError: LocalizedError {
+        let errorDescription: String? = "Lorem ipsum dolor set amet."
+    }
+    
+    func simulate() async throws -> Value {
+        switch self {
+        case .loading:
+            try await Task.sleep(nanoseconds: 10 * 1_000_000_000)
+            fatalError("Timeout exceeded for “loading” case preview")
+        case let .error(error):
+            throw error
+        case let .loaded(value):
+            return value
+        
+        }
+    }
+}
+#endif
+
 extension Loadable where Value: RangeReplaceableCollection {
     static var empty: Loadable<Value> {
         .loaded(Value())
