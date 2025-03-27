@@ -11,6 +11,7 @@ import FirebaseFirestore
 protocol PostsRepositoryProtocol {
     func fetchPosts() async throws -> [Post]
     func create(_ post: Post) async throws
+    func delete(_ post: Post) async throws
 }
 
 #if DEBUG
@@ -23,6 +24,8 @@ struct PostsRepositoryStub: PostsRepositoryProtocol {
     }
     
     func create(_ post: Post) async throws {}
+    
+    func delete(_ post: Post) async throws {}
 }
 #endif
 
@@ -42,6 +45,11 @@ struct PostsRepository: PostsRepositoryProtocol {
         return snapshot.documents.compactMap { document in
             try! document.data(as: Post.self)
         }
+    }
+    
+    func delete(_ post: Post) async throws {
+        let document = postsReference.document(post.id.uuidString)
+        try await document.delete()
     }
 }
 
