@@ -43,7 +43,7 @@ struct PostsList: View {
                 }
             }
             .searchable(text: $searchText)
-            .navigationTitle("Posts")
+            .navigationTitle(viewModel.title)
             .toolbar {
                 Button {
                     showNewPostForm = true
