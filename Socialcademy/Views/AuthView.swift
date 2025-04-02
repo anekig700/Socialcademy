@@ -12,8 +12,9 @@ struct AuthView: View {
     @StateObject var viewModel = AuthViewModel()
     
     var body: some View {
-        if viewModel.isAuthenticated {
+        if let user = viewModel.user {
             MainTabView()
+                .environmentObject(ViewModelFactory(user: user))
         } else {
             NavigationView {
                 SignInForm(viewModel: viewModel.makeSignInViewModel()) {
