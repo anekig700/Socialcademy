@@ -46,18 +46,20 @@ class PostsViewModel: ObservableObject {
     }
     
     func makePostRowViemModel(for post: Post) -> PostRowViewModel {
+        let deleteAction = { [weak self] in
+            try await self?.postsRepository.delete(post)
+            self?.posts.value?.removeAll { $0.id == post.id }
+        }
+        let favoriteAction = { [weak self] in
+            let newValue = !post.isFavorite
+            try await newValue ? self?.postsRepository.favorite(post) : self?.postsRepository.unfavorite(post)
+            guard let index = self?.posts.value?.firstIndex(of: post) else { return }
+            self?.posts.value?[index].isFavorite = newValue
+        }
         return PostRowViewModel(
             post: post,
-            deleteAction: { [weak self] in
-                try await self?.postsRepository.delete(post)
-                self?.posts.value?.removeAll { $0.id == post.id }
-            },
-            favoriteAction: { [weak self] in
-                let newValue = !post.isFavorite
-                try await newValue ? self?.postsRepository.favorite(post) : self?.postsRepository.unfavorite(post)
-                guard let index = self?.posts.value?.firstIndex(of: post) else { return }
-                self?.posts.value?[index].isFavorite = newValue
-            }
+            deleteAction: postsRepository.canDelete(post) ? deleteAction : nil,
+            favoriteAction: favoriteAction
         )
     }
     
