@@ -15,7 +15,6 @@ struct PostsList: View {
     @State private var showNewPostForm = false
     
     var body: some View {
-        NavigationStack {
             Group {
                 switch viewModel.posts {
                 case .loading:
@@ -34,22 +33,23 @@ struct PostsList: View {
                         message: "There aren’t any posts yet."
                     )
                 case let .loaded(posts):
-                    List(posts) { post in
-                        if searchText.isEmpty || post.contains(searchText) {
-                            PostRow(viewModel: viewModel.makePostRowViemModel(for: post))
+                    ScrollView {
+                        ForEach(posts) { post in
+                            if searchText.isEmpty || post.contains(searchText) {
+                                PostRow(viewModel: viewModel.makePostRowViemModel(for: post))
+                            }
                         }
+                        .searchable(text: $searchText)
+                        .animation(.default, value: posts)
                     }
-                    .animation(.default, value: posts)
                 }
             }
-            .searchable(text: $searchText)
             .navigationTitle(viewModel.title)
             .toolbar {
                 Button {
                     showNewPostForm = true
                 } label: {
                     Label("New Post", systemImage: "square.and.pencil")
-                }
             }
         }
         .onAppear {
@@ -70,7 +70,9 @@ private struct ListPreview: View {
     var body: some View {
         let postsRepository = PostsRepositoryStub(state: state)
         let viewModel = PostsViewModel(postsRepository: postsRepository)
-        PostsList(viewModel: viewModel)
+        NavigationView {
+            PostsList(viewModel: viewModel)
+        }
     }
     
 }
