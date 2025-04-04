@@ -20,6 +20,10 @@ class ViewModelFactory: ObservableObject {
         return PostsViewModel(filter: filter, postsRepository: PostsRepository(user: user))
     }
     
+    func makeCommentsViewModel(for post: Post) -> CommentsViewModel {
+        return CommentsViewModel(commentsRepository: CommentsRepository(user: user, post: post))
+    }
+    
 }
 
 #if DEBUG
