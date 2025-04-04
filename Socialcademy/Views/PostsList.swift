@@ -70,7 +70,7 @@ private struct ListPreview: View {
     var body: some View {
         let postsRepository = PostsRepositoryStub(state: state)
         let viewModel = PostsViewModel(postsRepository: postsRepository)
-        NavigationView {
+        NavigationStack {
             PostsList(viewModel: viewModel)
         }
     }

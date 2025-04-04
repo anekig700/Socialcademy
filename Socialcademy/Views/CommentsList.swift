@@ -41,6 +41,35 @@ struct CommentsList: View {
         }
         .navigationTitle("Comments")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                NewCommentForm(viewModel: viewModel.makeNewCommentViewModel())
+            }
+        }
+    }
+}
+
+private extension CommentsList {
+    struct NewCommentForm: View {
+        
+        @StateObject var viewModel: FormViewModel<Comment>
+        
+        var body: some View {
+            HStack {
+                TextField("Comment", text: $viewModel.content)
+                Button(action: viewModel.submit) {
+                    if viewModel.isWorking {
+                        ProgressView()
+                    } else {
+                        Label("Post", systemImage: "paperplane")
+                    }
+                }
+            }
+            .alert("Cannot Post Comment", error: $viewModel.error)
+            .animation(.default, value: viewModel.isWorking)
+            .disabled(viewModel.isWorking)
+            .onSubmit(viewModel.submit)
+        }
     }
 }
 
@@ -49,7 +78,7 @@ private struct ListPreview: View {
     let state: Loadable<[Comment]>
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             CommentsList(viewModel: CommentsViewModel(commentsRepository: CommentsRepositoryStub(state: state)))
         }
     }

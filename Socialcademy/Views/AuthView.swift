@@ -16,7 +16,7 @@ struct AuthView: View {
             MainTabView()
                 .environmentObject(ViewModelFactory(user: user))
         } else {
-            NavigationView {
+            NavigationStack {
                 SignInForm(viewModel: viewModel.makeSignInViewModel()) {
                     NavigationLink("Create Account", destination: CreateAccountForm(viewModel: viewModel.makeCreateAccountViewModel()))
                 }
