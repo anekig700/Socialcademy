@@ -101,20 +101,6 @@ struct PostsRepository: PostsRepositoryProtocol {
     }
 }
 
-private extension DocumentReference {
-    func setData<T: Encodable>(from value: T) async throws {
-        return try await withCheckedThrowingContinuation { continuation in
-            try! setData(from: value) { error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-                continuation.resume()
-            }
-        }
-    }
-}
-
 extension PostsRepositoryProtocol {
     func canDelete(_ post: Post) -> Bool {
         post.author.id == user.id
@@ -154,14 +140,5 @@ private extension Post {
         var post = self
         post[keyPath: property] = newValue
         return post
-    }
-}
-
-private extension Query {
-    func getDocuments<T: Decodable>(as type: T.Type) async throws -> [T] {
-        let snapshot = try await getDocuments()
-        return snapshot.documents.compactMap{ document in
-            try! document.data(as: type)
-        }
     }
 }
