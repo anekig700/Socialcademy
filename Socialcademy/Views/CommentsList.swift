@@ -34,7 +34,7 @@ struct CommentsList: View {
                 )
             case .loaded(let comments):
                 List(comments) { comment in
-                    CommentRow(comment: comment)
+                    CommentRow(viewModel: viewModel.makeCommentRowViewModel(for: comment))
                 }
                 .animation(.default, value: comments)
             }

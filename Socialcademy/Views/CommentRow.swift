@@ -9,27 +9,44 @@ import SwiftUI
 
 struct CommentRow: View {
     
-    let comment: Comment
+    @State private var showConfirmationDialog = false
+    @ObservedObject var viewModel: CommentRowViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top) {
-                Text(comment.author.name)
+                Text(viewModel.author.name)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                 Spacer()
-                Text(comment.timeStamp.formatted())
+                Text(viewModel.timeStamp.formatted())
                     .foregroundStyle(.gray)
                     .font(.caption)
             }
-            Text(comment.content)
+            Text(viewModel.content)
                 .font(.headline)
                 .fontWeight(.regular)
         }
         .padding(5)
+        .swipeActions {
+            if viewModel.canDeleteComment {
+                Button {
+                    showConfirmationDialog = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+                .tint(.red)
+            }
+        }
+        .confirmationDialog("Are you sure you want to delete this comment?", isPresented: $showConfirmationDialog, titleVisibility: .visible) {
+            Button("Delete", role: .destructive, action: {
+                viewModel.deleteComment()
+            })
+        }
+        
     }
 }
 
 #Preview {
-    CommentRow(comment: Comment.testComment)
+    CommentRow(viewModel: CommentRowViewModel(comment: Comment.testComment, deleteAction: {}))
 }
