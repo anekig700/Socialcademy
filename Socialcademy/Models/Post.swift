@@ -14,6 +14,7 @@ struct Post: Identifiable, Equatable {
     var isFavorite = false
     var timeStamp = Date()
     var id = UUID()
+    var imageURL: URL?
     
     func contains(_ string: String) -> Bool {
         let properties = [title, content, author.name].map { $0.lowercased() }
@@ -33,6 +34,6 @@ extension Post {
 
 extension Post: Codable {
     enum CodingKeys: String, CodingKey {
-        case title, content, author, timeStamp, id
+        case title, content, author, timeStamp, id, imageURL
     }
 }

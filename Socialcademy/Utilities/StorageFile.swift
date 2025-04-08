@@ -12,7 +12,7 @@ struct StorageFile {
     
     private let storageReference: StorageReference
     
-    func putFile(form fileURL:URL) async throws -> Self {
+    func putFile(from fileURL:URL) async throws -> Self {
         _ = try await storageReference.putFileAsync(from: fileURL)
         return self
     }
